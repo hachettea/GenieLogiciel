@@ -64,19 +64,11 @@ trouveAbstract = 0;
 
 print("[TITRE]")
 
-print("\t" + sys.argv[1].replace('_',' ').replace('.pdf','') + "\n")
+print("\t" + sys.argv[1].split("_")[2].replace('.pdf','') + "\n")
 
 # RECHERCHE ET IMPRESSION
 
 if not trouveAbstract and recupererParagrapheDuMot(lines, abstractArray) == 1: 
 	trouveAbstract = 1
-
-# ========================================
-# TODO: Trouver le reste des sections
-# ========================================
-
-
-
-# FIN
 
 f.close()
