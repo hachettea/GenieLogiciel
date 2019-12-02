@@ -7,23 +7,20 @@ from os.path import basename, splitext
 
 # FONCTIONS
 
-def recupererParagrapheDuMot(lines, words):
+def recupererParagrapheDuMot(lines, words, sortie):
 	for line in range(0,len(lines)):
 		for word in words:
 			if lines[line].lower().find(word.lower()) != -1:
-				print("[" + words[0] + "]")
 				while(lines[line].rstrip() != ""):
-					print("\t" + lines[line+1], end = '')
+					sortie += lines[line+1].rstrip()
 					line = line+1
 					if(re.search("^\d",lines[line+1])):
 						break
-				print()
-				return 1;
-	return 0;
-	
-# MOTS A VERIFIER
+				return sortie;
+	return "";
 
-abstractArray = ["ABSTRACT"]
+def concatXML(var, text):
+	print("\t<"+text+">"+var+"\t</"+text+">")
 
 # CHECK FICHIER
 
@@ -48,27 +45,56 @@ except:
 	rmtree("parseur_sortie")
 	os.mkdir("parseur_sortie")
 
-sys.stdout = open('parseur_sortie/' + sys.argv[1].replace('.pdf','.txt'), 'w')
+# ==================
+original = ""
+titre = ""
+abstract = ""
+# ==================
 
 # NOM FICHIER
 
-print("[ORIGINAL]\n\t" + sys.argv[1] + "\n")
-
-# ELEMENTS TROUVE
-
-trouveAbstract = 0;
-
-
+original = sys.argv[1]
 
 # TITRE
 
-print("[TITRE]")
+# ========================================
+# TODO: Découper l'année et l'auteur
+# ========================================
 
-print("\t" + sys.argv[1].split("_")[2].replace('.pdf','') + "\n")
+titre = sys.argv[1].split("_")[2].replace('.pdf','')
 
 # RECHERCHE ET IMPRESSION
 
-if not trouveAbstract and recupererParagrapheDuMot(lines, abstractArray) == 1: 
-	trouveAbstract = 1
+abstract = recupererParagrapheDuMot(lines, ["ABSTRACT"], abstract);
+
+# ========================================
+# TODO: Trouver le reste des sections
+# ========================================
+
+
+# PRINT TXT
+
+if(len(sys.argv) == 3):
+	sys.stdout = open('parseur_sortie/' + sys.argv[1].replace('.pdf','.txt'), 'w')
+	if(sys.argv[2] == "-x"):
+		print("<article>")
+		concatXML(original,"original")
+		concatXML(titre,"titre")
+		concatXML(abstract,"abstract")
+		print("</article>")
+	if(sys.argv[2] == "-t"):
+		print("[ORIGINAL]")
+		print("\t" + original + "\n")
+		print("[TITRE]")
+		print("\t" + titre + "\n")
+		print("[ABSTRACT]")
+		print("\t" + abstract + "\n")
+else:
+	print("Utilisation: python3 parseur.py -x/-t")
+	print("\t-x pour sortir en xml")
+	print("\t-t pour sortir en text avec balises")
+
+
+# FIN
 
 f.close()
