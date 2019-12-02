@@ -75,14 +75,15 @@ abstract = recupererParagrapheDuMot(lines, ["ABSTRACT"], abstract);
 # PRINT TXT
 
 if(len(sys.argv) == 3):
-	sys.stdout = open('parseur_sortie/' + sys.argv[1].replace('.pdf','.txt'), 'w')
 	if(sys.argv[2] == "-x"):
+		sys.stdout = open('parseur_sortie/' + sys.argv[1].replace('.pdf','.xml'), 'w')
 		print("<article>")
 		concatXML(original,"original")
 		concatXML(titre,"titre")
 		concatXML(abstract,"abstract")
 		print("</article>")
 	if(sys.argv[2] == "-t"):
+		sys.stdout = open('parseur_sortie/' + sys.argv[1].replace('.pdf','.txt'), 'w')
 		print("[ORIGINAL]")
 		print("\t" + original + "\n")
 		print("[TITRE]")
