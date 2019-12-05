@@ -35,21 +35,53 @@ elif(args.xml == True and args.txt == True):
 
 # FONCTIONS
 
-def recupererParagrapheDuMot(lines, words, skipnum=1):
+def recupererParagrapheDuMot(lines, words):
 	sortie = ""
 	for line in range(0,len(lines)):
 		for word in words:
-			if lines[line].lower().find(word.lower()) != -1:
+			if lines[line].find(word.upper()) != -1 or lines[line].find(word) != -1:					
+				
+				if(lines[line+1].rstrip() == ""):
+					line+=1
+				while(len(lines[line]) < 5 ):
+					sortie += lines[line].rstrip()
+					line+=1
+
 				while(lines[line].rstrip() != ""):
-					sortie += lines[line+1].rstrip()
-					line = line+1
-					if(not skipnum and re.search("^\d",lines[line+1])):
-						break
+					sortie += lines[line].rstrip()
+					line+=1
+				
 				return sortie
 	return "";
 
+def recupererCorps(lines, arrayVarsAvant, arrayVarsApres):
+	
+	#	récuperation de la derniere partie avant le corps + premiere partie après
+	# 	check de si la fin du début est egal au courrant -> si oui -> ecrire
+	#	check de si le debut de la fin est egal au courrant -> si oui -> stop + return
+
+	sortie = ""
+	for line in range(0,len(lines)):
+		# skip du debut
+		if(lines[line].rstrip().endswith(arrayVarsAvant[-1][-10:])):
+			line+=3
+			while(lines[line].rstrip()[:10] != arrayVarsApres[0][:10]):
+				sortie += lines[line-2].rstrip()
+				line+=1
+	return sortie
+
+def delControlChars(s): 	# from https://rosettacode.org/wiki/Strip_control_codes_and_extended_characters_from_a_string#Python
+	return "".join(i for i in s if 31 < ord(i) < 127)
+
 def concatXML(var, text):
-	var = var.replace("&","&amp;")	# correction xml de & (utilisé par le format)
+	var = delControlChars(var)
+
+	var = var.replace("\"","&quot;")	# correction xml des caracteres utilisé par le format
+	var = var.replace("&","&amp;")
+	var = var.replace("\'","&apos;")
+	var = var.replace("<","&it;")
+	var = var.replace(">","&gt;")
+
 	print("\t<"+text+">"+var+"</"+text+">")  # ajout des balies XML
 
 
@@ -86,8 +118,13 @@ def convertFile(pdf_to_convert):
 
 	# RECHERCHE ET IMPRESSION
 
-	abstract = recupererParagrapheDuMot(lines, ["Abstract"]);
-	references = recupererParagrapheDuMot(lines, ["References"],1);
+	abstract = recupererParagrapheDuMot(lines, ["Abstract"])
+	introduction = recupererParagrapheDuMot(lines, ["Introduction"])
+	conclusion = recupererParagrapheDuMot(lines, ["Conclusion"])
+	discussion = recupererParagrapheDuMot(lines, ["Discussion"])
+	references = recupererParagrapheDuMot(lines, ["References"])
+
+	corps = recupererCorps(lines,[abstract,introduction],[conclusion,discussion,references])
 
 
 	# PRINT TXT / XML
@@ -99,6 +136,10 @@ def convertFile(pdf_to_convert):
 		concatXML(titre,"titre")
 		concatXML(auteur,"auteur")
 		concatXML(abstract,"abstract")
+		concatXML(introduction,"introduction")
+		concatXML(corps,"corps")
+		concatXML(conclusion,"conclusion")
+		concatXML(discussion,"discussion")
 		concatXML(references,"biblio")
 		print("</article>")
 	elif(args.txt == True):
