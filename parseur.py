@@ -60,7 +60,7 @@ while(True):
 		int(x)
 	except:
 		x = -1
-	if(int(x) > len(folderOfPdf)-1 or int(x) < len(folderOfPdf)-1):
+	if(int(x) < 0 or int(x) > len(folderOfPdf)-1):
 		print("Invalid input")
 	else:
 		if(folderOfPdf[int(x)] in pdf_files_to_convert):
@@ -116,7 +116,7 @@ def concatXML(var, text):
 	var = var.replace("\"","&quot;")	# correction xml des caracteres utilisé par le format
 	var = var.replace("&","&amp;")
 	var = var.replace("\'","&apos;")
-	var = var.replace("<","&it;")
+	var = var.replace("<","&lt;")
 	var = var.replace(">","&gt;")
 
 	print("\t<"+text+">"+var+"</"+text+">")  # ajout des balies XML
