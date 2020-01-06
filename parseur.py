@@ -96,15 +96,19 @@ def recupererCorps(lines, arrayVarsAvant, arrayVarsApres):
 	# 	check de si la fin du début est egal au courrant -> si oui -> ecrire
 	#	check de si le debut de la fin est egal au courrant -> si oui -> stop + return
 
-	sortie = ""
-	for line in range(0,len(lines)):
-		# skip du debut
-		if(lines[line].rstrip().endswith(arrayVarsAvant[-1][-10:])):
-			line+=3
-			while(lines[line].rstrip()[:10] != arrayVarsApres[0][:10]):
-				sortie += lines[line-2].rstrip()
-				line+=1
-	return sortie
+	try:
+		sortie = ""
+		for line in range(0,len(lines)):
+			# skip du debut
+			if(lines[line].rstrip().endswith(arrayVarsAvant[-1][-10:])):
+				line+=3
+				while(lines[line].rstrip()[:10] != arrayVarsApres[0][:10]):
+					sortie += lines[line-2].rstrip()
+					line+=1
+		return sortie
+	except:
+		print("Error while getting the corps", file=sys.stderr)
+		return ""
 
 def delControlChars(s): 	# from https://rosettacode.org/wiki/Strip_control_codes_and_extended_characters_from_a_string#Python
 	return "".join(i for i in s if 31 < ord(i) < 127)
@@ -129,7 +133,8 @@ def convertFile(file_pdf):
 		print("Not a pdf file...")
 		sys.exit()
 	else:
-		subprocess.run(["pdftotext", args.folder_to_convert + "/" + file_pdf])
+		if subprocess.run(["pdftotext", args.folder_to_convert + "/" + file_pdf]).returncode != 0 :
+			return 1
 
 	# LECTURE DU FICHIER
 
@@ -189,6 +194,7 @@ def convertFile(file_pdf):
 
 	f.close()
 	os.remove(file_to_open) # suppression du fichier de base convertit par pdftotext
+	return 0
 
 
 oldstdout = sys.stdout # backup interface stdout
@@ -212,7 +218,8 @@ for file in pdf_files_to_convert:
 	if file.endswith(".pdf"):
 		sys.stdout = oldstdout  # restauration stdout
 		print("\t> processing: " + file)
-		convertFile(file)
+		if(convertFile(file)) != 0 :
+			print("Error while converting the pdf file", file=sys.stderr)
 
 sys.stdout = oldstdout
 print("> Done")
