@@ -71,7 +71,7 @@ while(True):
 
 # FONCTIONS
 
-def recupererParagrapheDuMot(lines, words):
+def recupererParagrapheDuMot(lines, words, untilTheEnd=False):
 	sortie = ""
 	for line in range(0,len(lines)):
 		for word in words:
@@ -83,12 +83,12 @@ def recupererParagrapheDuMot(lines, words):
 					sortie += lines[line].rstrip()
 					line+=1
 
-				while(lines[line].rstrip() != ""):
+				while((lines[line].rstrip() != "" and untilTheEnd == False) or (len(lines)-1 != line and untilTheEnd == True)):
 					sortie += lines[line].rstrip()
 					line+=1
 				
 				return sortie
-	return "";
+	return ""
 
 def recupererCorps(lines, arrayVarsAvant, arrayVarsApres):
 	
@@ -156,7 +156,7 @@ def convertFile(file_pdf):
 		titre = splitted[2].replace('.pdf','').rstrip()
 		auteur = splitted[0].replace('.pdf','').rstrip()
 	else:
-		titre = file_pdf
+		titre = file_pdf.replace('.pdf','').rstrip()
 
 	# RECHERCHE ET IMPRESSION
 
@@ -164,7 +164,7 @@ def convertFile(file_pdf):
 	introduction = recupererParagrapheDuMot(lines, ["Introduction"])
 	conclusion = recupererParagrapheDuMot(lines, ["Conclusion"])
 	discussion = recupererParagrapheDuMot(lines, ["Discussion"])
-	references = recupererParagrapheDuMot(lines, ["References"])
+	references = recupererParagrapheDuMot(lines, ["References"], True)
 
 	corps = recupererCorps(lines,[abstract,introduction],[conclusion,discussion,references])
 
